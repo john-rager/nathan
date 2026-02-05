@@ -5,13 +5,13 @@ Mobile-first PWA to view n8n workflows and executions.
 Run (web):
 
 ```bash
-flutter run -d chrome --web-port=8080
+flutter run -d chrome --web-port=8090
 ```
 
 Build (release web):
 
 ```bash
-flutter build web
+flutter build web --release --wasm
 ```
 
 Notes:
