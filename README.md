@@ -40,7 +40,7 @@ addEventListener('fetch', event => {
 async function handle(request) {
   const origin = request.headers.get('Origin') || '';
   // Add your production domain when deployed
-  const corsAllowed = ['http://localhost:8090', 'https://your-github-pages-domain.com'];
+  const corsAllowed = ['http://localhost:8090', 'https://john-rager.github.io'];
   const allowOrigin = corsAllowed.includes(origin) ? origin : corsAllowed[0];
 
   // Handle preflight (OPTIONS) requests
