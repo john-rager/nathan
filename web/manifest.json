@@ -1,7 +1,8 @@
 {
   "name": "nathan",
   "short_name": "nathan",
-  "start_url": "/",
+  "start_url": "/nathan",
+  "scope": "/nathan/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#008080",
