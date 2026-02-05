@@ -1,0 +1,20 @@
+name: nathan
+description: A small PWA to view n8n workflows and executions.
+publish_to: none
+version: 0.1.0
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  signals: any
+  http: ^1.6.0
+  shared_preferences: ^2.0.15
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
