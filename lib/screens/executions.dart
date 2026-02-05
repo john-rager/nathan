@@ -17,6 +17,7 @@ class ExecutionsScreen extends StatefulWidget {
 }
 
 class _ExecutionsScreenState extends State<ExecutionsScreen> {
+  late final Map<String, Workflow> workflows;
   List<Execution> executions = [];
   bool loading = true;
 
@@ -30,6 +31,8 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
     setState(() => loading = true);
     try {
       final api = ApiService(widget.instance);
+      final List<Workflow> wf = await api.fetchWorkflows();
+      workflows = Map.fromIterable(wf, key: (w) => w.id, value: (w) => w);
       final ex = await api.fetchExecutions();
       setState(() => executions = ex);
     } catch (e) {
@@ -56,7 +59,7 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
                     dense: true,
                     title: Row(children: [
                       Expanded(
-                          child: Text(e.raw['workflowName'] ?? e.workflowId ?? '',
+                          child: Text(workflows[e.workflowId]?.name ?? '',
                               style: const TextStyle(fontWeight: FontWeight.w600))),
                       StatusChip(status: e.status)
                     ]),
