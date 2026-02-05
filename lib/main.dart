@@ -1,6 +1,9 @@
+// Copyright 2026 MIKA Data Services, LLC. All rights reserved.
+
 import 'package:flutter/material.dart';
-import 'state.dart';
-import 'screens/home.dart';
+import 'package:nathan/constants.dart';
+import 'package:nathan/screens/workflows.dart';
+import 'package:nathan/state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,18 +17,16 @@ class NathanApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'nathan',
+      title: appTitle,
       theme: ThemeData.dark(useMaterial3: true).copyWith(
-        colorScheme: ColorScheme.dark(
-            primary: Colors.teal.shade300, secondary: Colors.orange.shade300),
+        colorScheme: ColorScheme.dark(primary: Colors.teal.shade300, secondary: Colors.orange.shade300),
         scaffoldBackgroundColor: const Color(0xFF121212),
-        appBarTheme:
-            const AppBarTheme(backgroundColor: Color(0xFF1E1E1E), elevation: 0),
+        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF1E1E1E), elevation: 0),
         cardColor: const Color(0xFF1A1A1A),
         dialogTheme: const DialogThemeData(backgroundColor: Color(0xFF1A1A1A)),
       ),
       debugShowCheckedModeBanner: false,
-      home: const HomeScreen(),
+      home: const WorkflowsScreen(),
     );
   }
 }

@@ -1,6 +1,12 @@
+// Copyright 2026 MIKA Data Services, LLC. All rights reserved.
+
 import 'package:flutter/material.dart';
-import '../models.dart';
-import '../services/api_service.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:nathan/helpers.dart';
+import 'package:nathan/models.dart';
+import 'package:nathan/services/api_service.dart';
+import 'package:nathan/widgets/published_chip.dart';
+import 'package:nathan/widgets/status_chip.dart';
 
 class WorkflowDetailScreen extends StatefulWidget {
   final Workflow workflow;
@@ -31,25 +37,14 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
   Future<void> _refresh() async {
     setState(() => loading = true);
     try {
-      final api = ApiService(InstanceConfig(
-          name: 'temp', url: widget.instanceUrl, apiKey: widget.apiKey));
+      final api = ApiService(InstanceConfig(name: 'temp', url: widget.instanceUrl, apiKey: widget.apiKey));
       final ex = await api.fetchExecutions(workflowId: widget.workflow.id);
       setState(() => executions = ex);
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() => loading = false);
     }
-  }
-
-  String _fmtDate(DateTime dt) {
-    final d = dt.toLocal();
-    final mm = d.month.toString().padLeft(2, '0');
-    final dd = d.day.toString().padLeft(2, '0');
-    final hh = d.hour.toString().padLeft(2, '0');
-    final mi = d.minute.toString().padLeft(2, '0');
-    return '$mm/$dd $hh:$mi';
   }
 
   String _fmtRelativeDate(DateTime dt) {
@@ -63,35 +58,6 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
     final month = d.month.toString().padLeft(2, '0');
     final day = d.day.toString().padLeft(2, '0');
     return '$month/$day';
-  }
-
-  Widget _statusChip(String status) {
-    final s = status.toLowerCase();
-    Color c = Colors.grey;
-    IconData icon = Icons.help_outline;
-    if (s.contains('success') || s.contains('finished') || s.contains('ok')) {
-      c = Colors.green.shade400;
-      icon = Icons.check_circle;
-    } else if (s.contains('error') || s.contains('failed')) {
-      c = Colors.red.shade400;
-      icon = Icons.error;
-    } else if (s.contains('running')) {
-      c = Colors.orange.shade400;
-      icon = Icons.play_circle;
-    }
-    final int rr = (c.r * 255.0).round();
-    final int gg = (c.g * 255.0).round();
-    final int bb = (c.b * 255.0).round();
-    final bg = Color.fromARGB((0.12 * 255).round(), rr, gg, bb);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 14, color: c),
-        const SizedBox(width: 6),
-        Text(status, style: TextStyle(color: c))
-      ]),
-    );
   }
 
   @override
@@ -112,18 +78,8 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
                         Row(children: [
                           Expanded(
                               child: Text(widget.workflow.name,
-                                  style: const TextStyle(
-                                      fontSize: 18, fontWeight: FontWeight.bold))),
-                          if (widget.workflow.active)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                  color: Colors.blue.shade600,
-                                  borderRadius: BorderRadius.circular(12)),
-                              child: const Text('Active',
-                                  style: TextStyle(fontSize: 12, color: Colors.white)),
-                            )
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+                          if (widget.workflow.active) PublishedChip(context: context)
                         ]),
                         const SizedBox(height: 4),
                         Text(
@@ -131,10 +87,7 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
                           style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
                         ),
                         const SizedBox(height: 16),
-                        const Text('Executions',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 8),
+                        const Text('Executions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -144,34 +97,38 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
                     (ctx, i) {
                       final e = executions[i];
                       return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(8)),
+                        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration:
+                            BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
                         child: ListTile(
                           dense: true,
                           title: Row(children: [
                             Expanded(
-                                child: Text('${_fmtDate(e.createdAt)} • ID ${e.id}',
-                                    style: const TextStyle(
-                                        fontSize: 12, fontWeight: FontWeight.w500))),
-                            _statusChip(e.status)
+                                child: Row(
+                              children: [
+                                Text('${Helpers.formatDate(e.startedAt)} • ID ${e.id}',
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                if (e.mode == 'manual') ...[
+                                  SizedBox(
+                                    width: 6,
+                                  ),
+                                  Icon(Symbols.experiment, size: 12)
+                                ]
+                              ],
+                            )),
+                            StatusChip(status: e.status)
                           ]),
-                          subtitle: Text('Duration: ${e.raw['executionTime'] ?? '--'}'),
+                          subtitle: Text(Helpers.formatDuration(e.stoppedAt, e.startedAt)),
                           trailing: IconButton(
                               icon: const Icon(Icons.chevron_right),
                               onPressed: () => showDialog(
                                   context: context,
                                   builder: (_) => AlertDialog(
                                         title: const Text('Execution'),
-                                        content: SingleChildScrollView(
-                                            child: Text(e.raw.toString())),
+                                        content: SingleChildScrollView(child: Text(e.raw.toString())),
                                         actions: [
                                           TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context).pop(),
-                                              child: const Text('Close'))
+                                              onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))
                                         ],
                                       ))),
                         ),

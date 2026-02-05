@@ -1,3 +1,5 @@
+// Copyright 2026 MIKA Data Services, LLC. All rights reserved.
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
 
@@ -9,8 +11,7 @@ class Signal<T> {
   set value(T v) => _notifier.value = v;
 
   void addListener(VoidCallback listener) => _notifier.addListener(listener);
-  void removeListener(VoidCallback listener) =>
-      _notifier.removeListener(listener);
+  void removeListener(VoidCallback listener) => _notifier.removeListener(listener);
 
   ValueListenable<T> get listenable => _notifier;
 }
@@ -24,13 +25,10 @@ class SignalBuilder<T> extends StatelessWidget {
   final Widget Function(BuildContext, T, Widget?) builder;
   final Widget? child;
 
-  const SignalBuilder(
-      {Key? key, required this.signal, required this.builder, this.child})
-      : super(key: key);
+  const SignalBuilder({Key? key, required this.signal, required this.builder, this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<T>(
-        valueListenable: signal.listenable, builder: builder, child: child);
+    return ValueListenableBuilder<T>(valueListenable: signal.listenable, builder: builder, child: child);
   }
 }

@@ -1,7 +1,9 @@
+// Copyright 2026 MIKA Data Services, LLC. All rights reserved.
+
 import 'package:flutter/material.dart';
-import '../signals_adapter.dart';
-import '../models.dart';
-import '../state.dart';
+import 'package:nathan/models.dart';
+import 'package:nathan/signals_adapter.dart';
+import 'package:nathan/state.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -18,12 +20,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showEditor([int? idx]) {
     final isNew = idx == null;
-    final nameCtl = TextEditingController(
-        text: idx != null ? appState.instances.value[idx].name : '');
-    final urlCtl = TextEditingController(
-        text: idx != null ? appState.instances.value[idx].url : '');
-    final keyCtl = TextEditingController(
-        text: idx != null ? appState.instances.value[idx].apiKey : '');
+    final nameCtl = TextEditingController(text: idx != null ? appState.instances.value[idx].name : '');
+    final urlCtl = TextEditingController(text: idx != null ? appState.instances.value[idx].url : '');
+    final keyCtl = TextEditingController(text: idx != null ? appState.instances.value[idx].apiKey : '');
 
     showDialog(
         context: context,
@@ -32,27 +31,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text(isNew ? 'Add Instance' : 'Edit Instance'),
             content: SingleChildScrollView(
               child: Column(children: [
-                TextField(
-                    controller: nameCtl,
-                    decoration: const InputDecoration(labelText: 'Name')),
-                TextField(
-                    controller: urlCtl,
-                    decoration: const InputDecoration(labelText: 'URL')),
-                TextField(
-                    controller: keyCtl,
-                    decoration: const InputDecoration(labelText: 'API Key')),
+                TextField(controller: nameCtl, decoration: const InputDecoration(labelText: 'Name')),
+                TextField(controller: urlCtl, decoration: const InputDecoration(labelText: 'URL')),
+                TextField(controller: keyCtl, decoration: const InputDecoration(labelText: 'API Key')),
               ]),
             ),
             actions: [
-              TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancel')),
+              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
               ElevatedButton(
                   onPressed: () {
-                    final cfg = InstanceConfig(
-                        name: nameCtl.text.trim(),
-                        url: urlCtl.text.trim(),
-                        apiKey: keyCtl.text.trim());
+                    final cfg =
+                        InstanceConfig(name: nameCtl.text.trim(), url: urlCtl.text.trim(), apiKey: keyCtl.text.trim());
                     if (isNew)
                       appState.addInstance(cfg);
                     else
@@ -77,8 +66,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: SignalBuilder<List<InstanceConfig>>(
               signal: appState.instances,
               builder: (ctx, list, child) {
-                if (list.isEmpty)
-                  return const Center(child: Text('No instances configured.'));
+                if (list.isEmpty) return const Center(child: Text('No instances configured.'));
                 return ListView.separated(
                   itemCount: list.length,
                   separatorBuilder: (_, __) => const Divider(),
@@ -88,9 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: Text(it.name),
                       subtitle: Text(it.url),
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                        IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _showEditor(i)),
+                        IconButton(icon: const Icon(Icons.edit), onPressed: () => _showEditor(i)),
                         IconButton(
                             icon: const Icon(Icons.delete),
                             onPressed: () {
@@ -109,9 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ElevatedButton.icon(
-              onPressed: () => _showEditor(),
-              icon: const Icon(Icons.add),
-              label: const Text('Add Instance'))
+              onPressed: () => _showEditor(), icon: const Icon(Icons.add), label: const Text('Add Instance'))
         ]),
       ),
     );

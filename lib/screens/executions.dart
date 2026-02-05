@@ -1,6 +1,11 @@
+// Copyright 2026 MIKA Data Services, LLC. All rights reserved.
+
 import 'package:flutter/material.dart';
-import '../models.dart';
-import '../services/api_service.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:nathan/helpers.dart';
+import 'package:nathan/models.dart';
+import 'package:nathan/services/api_service.dart';
+import 'package:nathan/widgets/status_chip.dart';
 
 class ExecutionsScreen extends StatefulWidget {
   final InstanceConfig instance;
@@ -28,49 +33,10 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
       final ex = await api.fetchExecutions();
       setState(() => executions = ex);
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() => loading = false);
     }
-  }
-
-  String _fmtDate(DateTime dt) {
-    final d = dt.toLocal();
-    final mm = d.month.toString().padLeft(2, '0');
-    final dd = d.day.toString().padLeft(2, '0');
-    final hh = d.hour.toString().padLeft(2, '0');
-    final mi = d.minute.toString().padLeft(2, '0');
-    return '$mm/$dd $hh:$mi';
-  }
-
-  Widget _statusChip(String status) {
-    final s = status.toLowerCase();
-    Color c = Colors.grey;
-    IconData icon = Icons.help_outline;
-    if (s.contains('success') || s.contains('finished') || s.contains('ok')) {
-      c = Colors.green.shade400;
-      icon = Icons.check_circle;
-    } else if (s.contains('error') || s.contains('failed')) {
-      c = Colors.red.shade400;
-      icon = Icons.error;
-    } else if (s.contains('running')) {
-      c = Colors.orange.shade400;
-      icon = Icons.play_circle;
-    }
-    final int rr = (c.r * 255.0).round();
-    final int gg = (c.g * 255.0).round();
-    final int bb = (c.b * 255.0).round();
-    final bg = Color.fromARGB((0.12 * 255).round(), rr, gg, bb);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 14, color: c),
-        const SizedBox(width: 6),
-        Text(status, style: TextStyle(color: c))
-      ]),
-    );
   }
 
   @override
@@ -85,22 +51,24 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
                 final e = executions[i];
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
                   child: ListTile(
                     dense: true,
                     title: Row(children: [
                       Expanded(
-                          child: Text(
-                              e.raw['workflowName'] ?? e.workflowId ?? '',
+                          child: Text(e.raw['workflowName'] ?? e.workflowId ?? '',
                               style: const TextStyle(fontWeight: FontWeight.w600))),
-                      _statusChip(e.status)
+                      StatusChip(status: e.status)
                     ]),
                     subtitle: Row(children: [
-                      Text(_fmtDate(e.createdAt)),
-                      const SizedBox(width: 8),
-                      Text(' • ID ${e.id}')
+                      Text(Helpers.formatDate(e.startedAt)),
+                      Text(' • ID ${e.id} • ${Helpers.formatDuration(e.stoppedAt, e.startedAt)}'),
+                      if (e.mode == 'manual') ...[
+                        SizedBox(
+                          width: 6,
+                        ),
+                        Icon(Symbols.experiment, size: 12)
+                      ]
                     ]),
                     trailing: IconButton(
                         icon: const Icon(Icons.chevron_right),
@@ -108,13 +76,9 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
                             context: context,
                             builder: (_) => AlertDialog(
                                   title: const Text('Execution'),
-                                  content: SingleChildScrollView(
-                                      child: Text(e.raw.toString())),
+                                  content: SingleChildScrollView(child: Text(e.raw.toString())),
                                   actions: [
-                                    TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(),
-                                        child: const Text('Close'))
+                                    TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))
                                   ],
                                 ))),
                   ),

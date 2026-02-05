@@ -1,7 +1,9 @@
+// Copyright 2026 MIKA Data Services, LLC. All rights reserved.
+
 import 'dart:convert';
-import 'signals_adapter.dart';
+import 'package:nathan/models.dart';
+import 'package:nathan/signals_adapter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'models.dart';
 
 class AppState {
   final ListSignal<InstanceConfig> instances = ListSignal<InstanceConfig>([]);
@@ -28,8 +30,7 @@ class AppState {
     final sp = await SharedPreferences.getInstance();
     final raw = instances.value.map((i) => i.toJson()).toList();
     await sp.setString('nathan_instances', json.encode(raw));
-    if (_selectedIndex.value != null)
-      await sp.setInt('nathan_selected', _selectedIndex.value!);
+    if (_selectedIndex.value != null) await sp.setInt('nathan_selected', _selectedIndex.value!);
   }
 
   void addInstance(InstanceConfig c) {
@@ -47,8 +48,7 @@ class AppState {
   void removeInstance(int idx) {
     final copy = [...instances.value]..removeAt(idx);
     instances.value = copy;
-    if (_selectedIndex.value != null && _selectedIndex.value! >= copy.length)
-      _selectedIndex.value = null;
+    if (_selectedIndex.value != null && _selectedIndex.value! >= copy.length) _selectedIndex.value = null;
     save();
   }
 }
