@@ -4,11 +4,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:nathan/models.dart';
 
-// Set to true to use CORS proxy for development (temporary fix)
-// Set to false for production (requires Cloudflare Worker or proper CORS config)
-const bool useCorsProxy = false;
-const String corsProxyUrl = 'https://thingproxy.freeboard.io/fetch';
-
 class ApiService {
   final InstanceConfig instance;
 
@@ -20,13 +15,7 @@ class ApiService {
     final baseUrl = instance.url.replaceAll(RegExp(r'\/+$'), '');
     final fullUrl = '$baseUrl/api/v1/$path';
 
-    if (useCorsProxy) {
-      // Route through CORS proxy for development
-      return Uri.parse('$corsProxyUrl/$fullUrl').replace(queryParameters: query);
-    } else {
-      // Direct request (production with Cloudflare Worker)
-      return Uri.parse(fullUrl).replace(queryParameters: query);
-    }
+    return Uri.parse(fullUrl).replace(queryParameters: query);
   }
 
   Future<List<Workflow>> fetchWorkflows() async {
