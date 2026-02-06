@@ -63,82 +63,85 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.workflow.name)),
-      body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _refresh,
-              child: CustomScrollView(slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(children: [
-                          Expanded(
-                              child: Text(widget.workflow.name,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-                          if (widget.workflow.active) PublishedChip(context: context)
-                        ]),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Updated ${_fmtRelativeDate(widget.workflow.updatedAt)}',
-                          style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+        appBar: AppBar(title: Text(widget.workflow.name)),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: loading
+            ? SafeArea(child: const Center(child: CircularProgressIndicator()))
+            : RefreshIndicator(
+                onRefresh: _refresh,
+                child: SafeArea(
+                  child: CustomScrollView(slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(children: [
+                              Expanded(
+                                  child: Text(widget.workflow.name,
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+                              if (widget.workflow.active) PublishedChip(context: context)
+                            ]),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Updated ${_fmtRelativeDate(widget.workflow.updatedAt)}',
+                              style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text('Executions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        const Text('Executions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      ],
+                      ),
                     ),
-                  ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (ctx, i) {
+                          final e = executions[i];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
+                            child: ListTile(
+                              dense: true,
+                              title: Row(children: [
+                                Expanded(
+                                    child: Row(
+                                  children: [
+                                    Text('${Helpers.formatDate(e.startedAt)} • ID ${e.id}',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                    if (e.mode == 'manual') ...[
+                                      SizedBox(
+                                        width: 6,
+                                      ),
+                                      Icon(Symbols.experiment, size: 12)
+                                    ]
+                                  ],
+                                )),
+                                StatusChip(status: e.status)
+                              ]),
+                              subtitle: Text(Helpers.formatDuration(e.stoppedAt, e.startedAt)),
+                              trailing: IconButton(
+                                  icon: const Icon(Icons.chevron_right),
+                                  onPressed: () => showDialog(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                            title: const Text('Execution'),
+                                            content: SingleChildScrollView(child: Text(e.raw.toString())),
+                                            actions: [
+                                              TextButton(
+                                                  onPressed: () => Navigator.of(context).pop(),
+                                                  child: const Text('Close'))
+                                            ],
+                                          ))),
+                            ),
+                          );
+                        },
+                        childCount: executions.length,
+                      ),
+                    )
+                  ]),
                 ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (ctx, i) {
-                      final e = executions[i];
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration:
-                            BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
-                        child: ListTile(
-                          dense: true,
-                          title: Row(children: [
-                            Expanded(
-                                child: Row(
-                              children: [
-                                Text('${Helpers.formatDate(e.startedAt)} • ID ${e.id}',
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                                if (e.mode == 'manual') ...[
-                                  SizedBox(
-                                    width: 6,
-                                  ),
-                                  Icon(Symbols.experiment, size: 12)
-                                ]
-                              ],
-                            )),
-                            StatusChip(status: e.status)
-                          ]),
-                          subtitle: Text(Helpers.formatDuration(e.stoppedAt, e.startedAt)),
-                          trailing: IconButton(
-                              icon: const Icon(Icons.chevron_right),
-                              onPressed: () => showDialog(
-                                  context: context,
-                                  builder: (_) => AlertDialog(
-                                        title: const Text('Execution'),
-                                        content: SingleChildScrollView(child: Text(e.raw.toString())),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))
-                                        ],
-                                      ))),
-                        ),
-                      );
-                    },
-                    childCount: executions.length,
-                  ),
-                )
-              ]),
-            ),
-    );
+              ));
   }
 }

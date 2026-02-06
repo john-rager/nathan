@@ -89,7 +89,7 @@ class _WorkflowsScreenState extends State<WorkflowsScreen> {
 
   Widget _workflowCard(Workflow w) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         dense: true,
@@ -110,6 +110,7 @@ class _WorkflowsScreenState extends State<WorkflowsScreen> {
         title: const Text(appTitle),
         actions: [IconButton(onPressed: _openSettings, icon: const Icon(Icons.settings))],
       ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: currentTabIndex == 0 ? _buildWorkflowsTab() : _buildExecutionsTab(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentTabIndex,
@@ -127,38 +128,40 @@ class _WorkflowsScreenState extends State<WorkflowsScreen> {
         ? const Center(child: CircularProgressIndicator())
         : RefreshIndicator(
             onRefresh: _refreshWorkflows,
-            child: CustomScrollView(slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(children: [
-                      Expanded(
-                          child: SignalBuilder<int?>(
-                              signal: appState.selectedIndex,
-                              builder: (ctx, si, ch) {
-                                final items = appState.instances.value;
-                                return DropdownButton<int>(
-                                  isExpanded: true,
-                                  value: si,
-                                  dropdownColor: Theme.of(context).cardColor,
-                                  hint: const Text('Select instance'),
-                                  items: List.generate(
-                                      items.length, (i) => DropdownMenuItem(value: i, child: Text(items[i].name))),
-                                  onChanged: (v) {
-                                    appState.selectedIndex.value = v;
-                                  },
-                                );
-                              })),
-                      IconButton(onPressed: _refreshWorkflows, icon: const Icon(Icons.refresh))
+            child: SafeArea(
+              child: CustomScrollView(slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        Expanded(
+                            child: SignalBuilder<int?>(
+                                signal: appState.selectedIndex,
+                                builder: (ctx, si, ch) {
+                                  final items = appState.instances.value;
+                                  return DropdownButton<int>(
+                                    isExpanded: true,
+                                    value: si,
+                                    dropdownColor: Theme.of(context).cardColor,
+                                    hint: const Text('Select instance'),
+                                    items: List.generate(
+                                        items.length, (i) => DropdownMenuItem(value: i, child: Text(items[i].name))),
+                                    onChanged: (v) {
+                                      appState.selectedIndex.value = v;
+                                    },
+                                  );
+                                })),
+                        IconButton(onPressed: _refreshWorkflows, icon: const Icon(Icons.refresh))
+                      ]),
                     ]),
-                  ]),
+                  ),
                 ),
-              ),
-              SliverList(
-                  delegate:
-                      SliverChildBuilderDelegate((ctx, i) => _workflowCard(workflows[i]), childCount: workflows.length))
-            ]),
+                SliverList(
+                    delegate: SliverChildBuilderDelegate((ctx, i) => _workflowCard(workflows[i]),
+                        childCount: workflows.length))
+              ]),
+            ),
           );
   }
 

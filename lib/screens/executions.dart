@@ -46,47 +46,54 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
   Widget build(BuildContext context) {
     return loading
         ? const Center(child: CircularProgressIndicator())
-        : RefreshIndicator(
-            onRefresh: _refresh,
-            child: ListView.builder(
-              itemCount: executions.length,
-              itemBuilder: (ctx, i) {
-                final e = executions[i];
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
-                  child: ListTile(
-                    dense: true,
-                    title: Row(children: [
-                      Expanded(
-                          child: Text(workflows[e.workflowId]?.name ?? '',
-                              style: const TextStyle(fontWeight: FontWeight.w600))),
-                      StatusChip(status: e.status)
-                    ]),
-                    subtitle: Row(children: [
-                      Text(Helpers.formatDate(e.startedAt)),
-                      Text(' • ID ${e.id} • ${Helpers.formatDuration(e.stoppedAt, e.startedAt)}'),
-                      if (e.mode == 'manual') ...[
-                        SizedBox(
-                          width: 6,
-                        ),
-                        Icon(Symbols.experiment, size: 12)
-                      ]
-                    ]),
-                    trailing: IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: () => showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                                  title: const Text('Execution'),
-                                  content: SingleChildScrollView(child: Text(e.raw.toString())),
-                                  actions: [
-                                    TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))
-                                  ],
-                                ))),
-                  ),
-                );
-              },
+        : Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: RefreshIndicator(
+              onRefresh: _refresh,
+              child: SafeArea(
+                child: ListView.builder(
+                  itemCount: executions.length,
+                  itemBuilder: (ctx, i) {
+                    final e = executions[i];
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration:
+                          BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
+                      child: ListTile(
+                        dense: true,
+                        title: Row(children: [
+                          Expanded(
+                              child: Text(workflows[e.workflowId]?.name ?? '',
+                                  style: const TextStyle(fontWeight: FontWeight.w600))),
+                          StatusChip(status: e.status)
+                        ]),
+                        subtitle: Row(children: [
+                          Text(Helpers.formatDate(e.startedAt)),
+                          Text(' • ID ${e.id} • ${Helpers.formatDuration(e.stoppedAt, e.startedAt)}'),
+                          if (e.mode == 'manual') ...[
+                            SizedBox(
+                              width: 6,
+                            ),
+                            Icon(Symbols.experiment, size: 12)
+                          ]
+                        ]),
+                        trailing: IconButton(
+                            icon: const Icon(Icons.chevron_right),
+                            onPressed: () => showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                      title: const Text('Execution'),
+                                      content: SingleChildScrollView(child: Text(e.raw.toString())),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))
+                                      ],
+                                    ))),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           );
   }

@@ -1,11 +1,11 @@
 {
-  "name": "nathan",
-  "short_name": "nathan",
+  "name": "n8nNathan",
+  "short_name": "n8nNathan",
   "start_url": "/nathan",
   "scope": "/nathan/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#008080",
+  "background_color": "#121212",
+  "theme_color": "#121212",
   "icons": [
     {
       "src": "icons/icon-192.png",

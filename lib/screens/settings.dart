@@ -59,44 +59,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(children: [
-          Expanded(
-            child: SignalBuilder<List<InstanceConfig>>(
-              signal: appState.instances,
-              builder: (ctx, list, child) {
-                if (list.isEmpty) return const Center(child: Text('No instances configured.'));
-                return ListView.separated(
-                  itemCount: list.length,
-                  separatorBuilder: (_, __) => const Divider(),
-                  itemBuilder: (ctx, i) {
-                    final it = list[i];
-                    return ListTile(
-                      title: Text(it.name),
-                      subtitle: Text(it.url),
-                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                        IconButton(icon: const Icon(Icons.edit), onPressed: () => _showEditor(i)),
-                        IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              appState.removeInstance(i);
-                              setState(() {});
-                            }),
-                      ]),
-                      onTap: () {
-                        appState.selectedIndex.value = i;
-                        Navigator.of(context).pop();
-                      },
-                    );
-                  },
-                );
-              },
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(children: [
+            Expanded(
+              child: SignalBuilder<List<InstanceConfig>>(
+                signal: appState.instances,
+                builder: (ctx, list, child) {
+                  if (list.isEmpty) return const Center(child: Text('No instances configured.'));
+                  return ListView.separated(
+                    itemCount: list.length,
+                    separatorBuilder: (_, __) => const Divider(),
+                    itemBuilder: (ctx, i) {
+                      final it = list[i];
+                      return ListTile(
+                        title: Text(it.name),
+                        subtitle: Text(it.url),
+                        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                          IconButton(icon: const Icon(Icons.edit), onPressed: () => _showEditor(i)),
+                          IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                appState.removeInstance(i);
+                                setState(() {});
+                              }),
+                        ]),
+                        onTap: () {
+                          appState.selectedIndex.value = i;
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-          ElevatedButton.icon(
-              onPressed: () => _showEditor(), icon: const Icon(Icons.add), label: const Text('Add Instance'))
-        ]),
+            ElevatedButton.icon(
+                onPressed: () => _showEditor(), icon: const Icon(Icons.add), label: const Text('Add Instance'))
+          ]),
+        ),
       ),
     );
   }
