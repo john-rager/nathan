@@ -11,7 +11,7 @@ flutter run -d chrome --web-port=8090
 Build (release web):
 
 ```bash
-flutter build web --release --wasm
+flutter build web --release --pwa-strategy=none --wasm
 ```
 
 Notes:
