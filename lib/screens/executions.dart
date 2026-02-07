@@ -17,7 +17,7 @@ class ExecutionsScreen extends StatefulWidget {
 }
 
 class _ExecutionsScreenState extends State<ExecutionsScreen> {
-  late final Map<String, Workflow> workflows;
+  late Map<String, Workflow> workflows;
   List<Execution> executions = [];
   bool loading = true;
 
