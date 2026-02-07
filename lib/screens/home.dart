@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildWorkflowsTab() {
     final inst = currentInstance;
     if (inst == null) {
-      return Center(child: Text('Select an instance', style: Theme.of(context).textTheme.titleMedium));
+      return Center(child: Text('Select an instance in Settings', style: Theme.of(context).textTheme.titleMedium));
     }
     return WorkflowsScreen(instance: inst);
   }
@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildExecutionsTab() {
     final inst = currentInstance;
     if (inst == null) {
-      return Center(child: Text('Select an instance', style: Theme.of(context).textTheme.titleMedium));
+      return Center(child: Text('Select an instance in Settings', style: Theme.of(context).textTheme.titleMedium));
     }
     return ExecutionsScreen(instance: inst);
   }
