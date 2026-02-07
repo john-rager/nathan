@@ -67,19 +67,22 @@ class _WorkflowsScreenState extends State<WorkflowsScreen> {
   }
 
   Widget _workflowCard(Workflow w) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: ListTile(
-        dense: true,
-        title: Row(children: [
-          Expanded(child: Text(w.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600))),
-          if (w.active) PublishedChip(context: context)
-        ]),
-        subtitle: Text('Updated ${_fmtRelativeDate(w.updatedAt)}', style: TextStyle(color: Colors.grey.shade400)),
-        onTap: () => _selectWorkflow(w),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ListTile(
+          dense: true,
+          title: Row(children: [
+            Expanded(child: Text(w.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600))),
+            if (w.active) PublishedChip(context: context)
+          ]),
+          subtitle: Text('Updated ${_fmtRelativeDate(w.updatedAt)}', style: TextStyle(color: Colors.grey.shade400)),
+          onTap: () => _selectWorkflow(w),
+        ),
       ),
     );
   }
@@ -124,15 +127,17 @@ class _WorkflowsScreenState extends State<WorkflowsScreen> {
                             color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _sortBy,
-                              isDense: true,
-                              items: [
-                                DropdownMenuItem(value: 'updated', child: Text('Updated', style: tbTextStyle)),
-                                DropdownMenuItem(value: 'name', child: Text('Name', style: tbTextStyle)),
-                              ],
-                              onChanged: (value) => setState(() => _sortBy = value!),
+                          child: SizedBox(
+                            height: 32,
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _sortBy,
+                                items: [
+                                  DropdownMenuItem(value: 'updated', child: Text('Updated', style: tbTextStyle)),
+                                  DropdownMenuItem(value: 'name', child: Text('Name', style: tbTextStyle)),
+                                ],
+                                onChanged: (value) => setState(() => _sortBy = value!),
+                              ),
                             ),
                           ),
                         ),

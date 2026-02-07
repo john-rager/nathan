@@ -1,13 +1,10 @@
 // Copyright 2026 MIKA Data Services, LLC. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:nathan/helpers.dart';
 import 'package:nathan/models.dart';
 import 'package:nathan/services/api_service.dart';
-import 'package:nathan/widgets/execution_dialog.dart';
+import 'package:nathan/widgets/executions_list.dart';
 import 'package:nathan/widgets/published_chip.dart';
-import 'package:nathan/widgets/status_chip.dart';
 
 class WorkflowDetailScreen extends StatefulWidget {
   final Workflow workflow;
@@ -28,6 +25,8 @@ class WorkflowDetailScreen extends StatefulWidget {
 class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
   List<Execution> executions = [];
   bool loading = true;
+  bool _showErrorOnly = false;
+  bool _showTriggeredOnly = false;
 
   @override
   void initState() {
@@ -63,83 +62,78 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tbTextStyle = TextStyle(fontSize: 14);
+    var filteredExecutions = _showErrorOnly ? executions.where((e) => e.status == 'error').toList() : executions;
+    filteredExecutions =
+        _showTriggeredOnly ? filteredExecutions.where((e) => e.mode == 'trigger').toList() : filteredExecutions;
+
     return Scaffold(
-        appBar: AppBar(title: Text(widget.workflow.name)),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: loading
-            ? SafeArea(child: const Center(child: CircularProgressIndicator()))
-            : RefreshIndicator(
-                onRefresh: _refresh,
-                child: SafeArea(
-                  child: CustomScrollView(slivers: [
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(children: [
-                              Expanded(
-                                  child: Text(widget.workflow.name,
-                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-                              if (widget.workflow.active) PublishedChip(context: context)
-                            ]),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Updated ${_fmtRelativeDate(widget.workflow.updatedAt)}',
-                              style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text('Executions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                          ],
-                        ),
+      appBar: AppBar(title: Text(widget.workflow.name)),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: loading
+          ? SafeArea(child: const Center(child: CircularProgressIndicator()))
+          : RefreshIndicator(
+              onRefresh: _refresh,
+              child: SafeArea(
+                child: CustomScrollView(slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(children: [
+                            Expanded(
+                                child: Text(widget.workflow.name,
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+                            if (widget.workflow.active) PublishedChip(context: context)
+                          ]),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Updated ${_fmtRelativeDate(widget.workflow.updatedAt)}',
+                            style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text('Executions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        ],
                       ),
                     ),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (ctx, i) {
-                          final e = executions[i];
-                          return Container(
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
-                            child: ListTile(
-                              dense: true,
-                              contentPadding: const EdgeInsets.fromLTRB(16, 8, 0, 8),
-                              title: Row(
-                                children: [
-                                  Text('${Helpers.formatDate(e.startedAt)} • ID ${e.id}',
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                                  if (e.mode == 'manual') ...[
-                                    SizedBox(
-                                      width: 6,
-                                    ),
-                                    Icon(Symbols.experiment, size: 12)
-                                  ]
-                                ],
-                              ),
-                              subtitle: Text(Helpers.formatDuration(e.stoppedAt, e.startedAt)),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  StatusChip(status: e.status),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    icon: const Icon(Icons.chevron_right),
-                                    onPressed: () => showDialog(
-                                      context: context,
-                                      builder: (_) => ExecutionDialog(execution: e),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          FilterChip(
+                            label: Text(
+                              _showTriggeredOnly
+                                  ? 'Triggered (${filteredExecutions.where((e) => e.mode == 'trigger').length})'
+                                  : 'All (${filteredExecutions.length})',
                             ),
-                          );
-                        },
-                        childCount: executions.length,
+                            labelStyle: tbTextStyle,
+                            selected: _showTriggeredOnly,
+                            onSelected: (value) => setState(() => _showTriggeredOnly = value),
+                          ),
+                          SizedBox(width: 6),
+                          FilterChip(
+                            label: Text(
+                              _showErrorOnly
+                                  ? 'Error (${filteredExecutions.where((e) => e.status == 'error').length})'
+                                  : 'All (${filteredExecutions.length})',
+                            ),
+                            labelStyle: tbTextStyle,
+                            selected: _showErrorOnly,
+                            onSelected: (value) => setState(() => _showErrorOnly = value),
+                          ),
+                        ],
                       ),
-                    )
-                  ]),
-                ),
-              ));
+                    ),
+                  ),
+                  ExecutionsList(executions: filteredExecutions)
+                ]),
+              ),
+            ),
+    );
   }
 }

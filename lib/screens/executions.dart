@@ -1,12 +1,9 @@
 // Copyright 2026 MIKA Data Services, LLC. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:nathan/helpers.dart';
 import 'package:nathan/models.dart';
 import 'package:nathan/services/api_service.dart';
-import 'package:nathan/widgets/execution_dialog.dart';
-import 'package:nathan/widgets/status_chip.dart';
+import 'package:nathan/widgets/executions_list.dart';
 
 class ExecutionsScreen extends StatefulWidget {
   final InstanceConfig instance;
@@ -21,6 +18,8 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
   late Map<String, Workflow> workflows;
   List<Execution> executions = [];
   bool loading = true;
+  bool _showErrorOnly = false;
+  bool _showTriggeredOnly = false;
 
   @override
   void initState() {
@@ -45,55 +44,54 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return loading
-        ? const Center(child: CircularProgressIndicator())
-        : Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            body: RefreshIndicator(
+    final tbTextStyle = TextStyle(fontSize: 14);
+    var filteredExecutions = _showErrorOnly ? executions.where((e) => e.status == 'error').toList() : executions;
+    filteredExecutions =
+        _showTriggeredOnly ? filteredExecutions.where((e) => e.mode == 'trigger').toList() : filteredExecutions;
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
               onRefresh: _refresh,
               child: SafeArea(
-                child: ListView.builder(
-                  itemCount: executions.length,
-                  itemBuilder: (ctx, i) {
-                    final e = executions[i];
-                    return Container(
-                      decoration:
-                          BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
-                      child: ListTile(
-                        dense: true,
-                        contentPadding: const EdgeInsets.fromLTRB(16, 8, 0, 8),
-                        title: Text(workflows[e.workflowId]?.name ?? '',
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: Row(children: [
-                          Text(Helpers.formatDate(e.startedAt)),
-                          Text(' • ID ${e.id} • ${Helpers.formatDuration(e.stoppedAt, e.startedAt)}'),
-                          if (e.mode == 'manual') ...[
-                            SizedBox(
-                              width: 6,
+                child: CustomScrollView(slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          FilterChip(
+                            label: Text(
+                              _showTriggeredOnly
+                                  ? 'Triggered (${filteredExecutions.where((e) => e.mode == 'trigger').length})'
+                                  : 'All (${filteredExecutions.length})',
                             ),
-                            Icon(Symbols.experiment, size: 12)
-                          ]
-                        ]),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min, // Add this line
-                          children: [
-                            StatusChip(status: e.status),
-                            const SizedBox(width: 8),
-                            IconButton(
-                              icon: const Icon(Icons.chevron_right),
-                              onPressed: () => showDialog(
-                                context: context,
-                                builder: (_) => ExecutionDialog(execution: e),
-                              ),
+                            labelStyle: tbTextStyle,
+                            selected: _showTriggeredOnly,
+                            onSelected: (value) => setState(() => _showTriggeredOnly = value),
+                          ),
+                          SizedBox(width: 6),
+                          FilterChip(
+                            label: Text(
+                              _showErrorOnly
+                                  ? 'Error (${filteredExecutions.where((e) => e.status == 'error').length})'
+                                  : 'All (${filteredExecutions.length})',
                             ),
-                          ],
-                        ),
+                            labelStyle: tbTextStyle,
+                            selected: _showErrorOnly,
+                            onSelected: (value) => setState(() => _showErrorOnly = value),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                  ExecutionsList(executions: filteredExecutions),
+                ]),
               ),
             ),
-          );
+    );
   }
 }
