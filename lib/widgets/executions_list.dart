@@ -9,8 +9,9 @@ import 'package:nathan/widgets/status_chip.dart';
 
 class ExecutionsList extends StatelessWidget {
   final List<Execution> executions;
+  final Map<String, Workflow>? workflows;
 
-  const ExecutionsList({super.key, required this.executions});
+  const ExecutionsList({super.key, required this.executions, this.workflows});
 
   @override
   Widget build(BuildContext context) {
@@ -25,16 +26,26 @@ class ExecutionsList extends StatelessWidget {
               child: ListTile(
                 dense: true,
                 contentPadding: const EdgeInsets.fromLTRB(16, 8, 0, 8),
-                title: Row(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${Helpers.formatDate(e.startedAt)} • ID ${e.id}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                    if (e.mode == 'manual') ...[
-                      SizedBox(
-                        width: 6,
+                    if (workflows != null)
+                      Text(
+                        workflows?[e.workflowId]?.name ?? '[Unknown]',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                       ),
-                      Icon(Symbols.experiment, size: 12)
-                    ]
+                    Row(
+                      children: [
+                        Text('${Helpers.formatDate(e.startedAt)} • ID ${e.id}',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                        if (e.mode == 'manual') ...[
+                          SizedBox(
+                            width: 6,
+                          ),
+                          Icon(Symbols.experiment, size: 12)
+                        ]
+                      ],
+                    ),
                   ],
                 ),
                 subtitle: Text(Helpers.formatDuration(e.stoppedAt, e.startedAt)),

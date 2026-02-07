@@ -88,7 +88,7 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
                       ),
                     ),
                   ),
-                  ExecutionsList(executions: filteredExecutions),
+                  ExecutionsList(executions: filteredExecutions, workflows: workflows),
                 ]),
               ),
             ),
