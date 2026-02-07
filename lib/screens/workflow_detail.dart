@@ -74,7 +74,7 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
                   child: CustomScrollView(slivers: [
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -90,7 +90,7 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
                               style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
                             ),
                             const SizedBox(height: 16),
-                            const Text('Executions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                            const Text('Executions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -100,34 +100,37 @@ class _WorkflowDetailScreenState extends State<WorkflowDetailScreen> {
                         (ctx, i) {
                           final e = executions[i];
                           return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                                 color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
                             child: ListTile(
                               dense: true,
-                              title: Row(children: [
-                                Expanded(
-                                    child: Row(
-                                  children: [
-                                    Text('${Helpers.formatDate(e.startedAt)} • ID ${e.id}',
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                                    if (e.mode == 'manual') ...[
-                                      SizedBox(
-                                        width: 6,
-                                      ),
-                                      Icon(Symbols.experiment, size: 12)
-                                    ]
-                                  ],
-                                )),
-                                StatusChip(status: e.status)
-                              ]),
+                              contentPadding: const EdgeInsets.fromLTRB(16, 8, 0, 8),
+                              title: Row(
+                                children: [
+                                  Text('${Helpers.formatDate(e.startedAt)} • ID ${e.id}',
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                  if (e.mode == 'manual') ...[
+                                    SizedBox(
+                                      width: 6,
+                                    ),
+                                    Icon(Symbols.experiment, size: 12)
+                                  ]
+                                ],
+                              ),
                               subtitle: Text(Helpers.formatDuration(e.stoppedAt, e.startedAt)),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.chevron_right),
-                                onPressed: () => showDialog(
-                                  context: context,
-                                  builder: (_) => ExecutionDialog(execution: e),
-                                ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  StatusChip(status: e.status),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(Icons.chevron_right),
+                                    onPressed: () => showDialog(
+                                      context: context,
+                                      builder: (_) => ExecutionDialog(execution: e),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           );

@@ -57,17 +57,13 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
                   itemBuilder: (ctx, i) {
                     final e = executions[i];
                     return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration:
                           BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
                       child: ListTile(
                         dense: true,
-                        title: Row(children: [
-                          Expanded(
-                              child: Text(workflows[e.workflowId]?.name ?? '',
-                                  style: const TextStyle(fontWeight: FontWeight.w600))),
-                          StatusChip(status: e.status)
-                        ]),
+                        contentPadding: const EdgeInsets.fromLTRB(16, 8, 0, 8),
+                        title: Text(workflows[e.workflowId]?.name ?? '',
+                            style: const TextStyle(fontWeight: FontWeight.w600)),
                         subtitle: Row(children: [
                           Text(Helpers.formatDate(e.startedAt)),
                           Text(' • ID ${e.id} • ${Helpers.formatDuration(e.stoppedAt, e.startedAt)}'),
@@ -78,12 +74,19 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
                             Icon(Symbols.experiment, size: 12)
                           ]
                         ]),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.chevron_right),
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (_) => ExecutionDialog(execution: e),
-                          ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min, // Add this line
+                          children: [
+                            StatusChip(status: e.status),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(Icons.chevron_right),
+                              onPressed: () => showDialog(
+                                context: context,
+                                builder: (_) => ExecutionDialog(execution: e),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
