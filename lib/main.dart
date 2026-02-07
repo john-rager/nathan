@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nathan/constants.dart';
-import 'package:nathan/screens/workflows.dart';
+import 'package:nathan/screens/home.dart';
 import 'package:nathan/state.dart';
 
 void main() async {
@@ -31,7 +31,7 @@ class NathanApp extends StatelessWidget {
         dialogTheme: const DialogThemeData(backgroundColor: Color(0xFF1A1A1A)),
       ),
       debugShowCheckedModeBanner: false,
-      home: const WorkflowsScreen(),
+      home: const HomeScreen(),
     );
   }
 }

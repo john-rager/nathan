@@ -11,14 +11,14 @@ import 'package:nathan/signals_adapter.dart';
 import 'package:nathan/state.dart';
 import 'package:nathan/widgets/published_chip.dart';
 
-class WorkflowsScreen extends StatefulWidget {
-  const WorkflowsScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<WorkflowsScreen> createState() => _WorkflowsScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _WorkflowsScreenState extends State<WorkflowsScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   List<Workflow> workflows = [];
   bool loading = false;
   int currentTabIndex = 0;
