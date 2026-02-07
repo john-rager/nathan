@@ -18,6 +18,8 @@ class WorkflowsScreen extends StatefulWidget {
 class _WorkflowsScreenState extends State<WorkflowsScreen> {
   List<Workflow> workflows = [];
   bool loading = false;
+  bool _showPublishedOnly = false;
+  String _sortBy = 'updated';
 
   @override
   void initState() {
@@ -66,8 +68,10 @@ class _WorkflowsScreenState extends State<WorkflowsScreen> {
 
   Widget _workflowCard(Workflow w) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: ListTile(
         dense: true,
         title: Row(children: [
@@ -82,15 +86,66 @@ class _WorkflowsScreenState extends State<WorkflowsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tbTextStyle = TextStyle(fontSize: 14);
+    var filteredWorkflows = _showPublishedOnly ? workflows.where((w) => w.active).toList() : workflows;
+
+    filteredWorkflows.sort((a, b) {
+      if (_sortBy == 'name') {
+        return a.name.compareTo(b.name);
+      }
+      return b.updatedAt.compareTo(a.updatedAt);
+    });
+
     return loading
         ? const Center(child: CircularProgressIndicator())
         : RefreshIndicator(
             onRefresh: _refresh,
             child: SafeArea(
               child: CustomScrollView(slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        FilterChip(
+                          label: Text(
+                            _showPublishedOnly
+                                ? 'Published (${workflows.where((w) => w.active).length})'
+                                : 'All (${workflows.length})',
+                          ),
+                          labelStyle: tbTextStyle,
+                          selected: _showPublishedOnly,
+                          onSelected: (value) => setState(() => _showPublishedOnly = value),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _sortBy,
+                              isDense: true,
+                              items: [
+                                DropdownMenuItem(value: 'updated', child: Text('Updated', style: tbTextStyle)),
+                                DropdownMenuItem(value: 'name', child: Text('Name', style: tbTextStyle)),
+                              ],
+                              onChanged: (value) => setState(() => _sortBy = value!),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 SliverList(
-                    delegate: SliverChildBuilderDelegate((ctx, i) => _workflowCard(workflows[i]),
-                        childCount: workflows.length))
+                  delegate: SliverChildBuilderDelegate(
+                    (ctx, i) => _workflowCard(filteredWorkflows[i]),
+                    childCount: filteredWorkflows.length,
+                  ),
+                ),
               ]),
             ),
           );
