@@ -23,18 +23,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final nameCtl = TextEditingController(text: idx != null ? appState.instances.value[idx].name : '');
     final urlCtl = TextEditingController(text: idx != null ? appState.instances.value[idx].url : '');
     final keyCtl = TextEditingController(text: idx != null ? appState.instances.value[idx].apiKey : '');
+    final screenWidth = MediaQuery.of(context).size.width;
 
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (ctx) {
           return AlertDialog(
             title: Text(isNew ? 'Add Instance' : 'Edit Instance'),
-            content: SingleChildScrollView(
-              child: Column(children: [
-                TextField(controller: nameCtl, decoration: const InputDecoration(labelText: 'Name')),
-                TextField(controller: urlCtl, decoration: const InputDecoration(labelText: 'URL')),
-                TextField(controller: keyCtl, decoration: const InputDecoration(labelText: 'API Key')),
-              ]),
+            content: SizedBox(
+              width: screenWidth * 0.9,
+              child: SingleChildScrollView(
+                child: Column(children: [
+                  TextField(controller: nameCtl, decoration: const InputDecoration(labelText: 'Name'), autofocus: true),
+                  TextField(controller: urlCtl, decoration: const InputDecoration(labelText: 'URL')),
+                  TextField(
+                    controller: keyCtl,
+                    decoration: const InputDecoration(labelText: 'API Key'),
+                    maxLines: 5,
+                  ),
+                ]),
+              ),
             ),
             actions: [
               TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
@@ -58,13 +67,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(children: [
-            Expanded(
+        appBar: AppBar(title: const Text('Settings')),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Expanded(
               child: SignalBuilder<List<InstanceConfig>>(
                 signal: appState.instances,
                 builder: (ctx, list, child) {
@@ -96,11 +104,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
             ),
-            ElevatedButton.icon(
-                onPressed: () => _showEditor(), icon: const Icon(Icons.add), label: const Text('Add Instance'))
-          ]),
+          ),
         ),
-      ),
-    );
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () => _showEditor(),
+        ));
   }
 }
