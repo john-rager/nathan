@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:nathan/helpers.dart';
 import 'package:nathan/models.dart';
 import 'package:nathan/services/api_service.dart';
+import 'package:nathan/widgets/execution_dialog.dart';
 import 'package:nathan/widgets/status_chip.dart';
 
 class ExecutionsScreen extends StatefulWidget {
@@ -78,17 +79,12 @@ class _ExecutionsScreenState extends State<ExecutionsScreen> {
                           ]
                         ]),
                         trailing: IconButton(
-                            icon: const Icon(Icons.chevron_right),
-                            onPressed: () => showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                      title: const Text('Execution'),
-                                      content: SingleChildScrollView(child: Text(e.raw.toString())),
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))
-                                      ],
-                                    ))),
+                          icon: const Icon(Icons.chevron_right),
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (_) => ExecutionDialog(execution: e),
+                          ),
+                        ),
                       ),
                     );
                   },
